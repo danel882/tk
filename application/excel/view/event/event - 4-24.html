@@ -1,0 +1,185 @@
+﻿{load href="__ROOT__/public/js/app/activity/event.js" /}
+{load href="__ROOT__/public/js/jquery/jquery.uploadPreview.js" /}
+{load href="__ROOT__/public/js/ckeditor/ckeditor.js" /}
+{load href="__ROOT__/public/css/uploadview.css" /}
+{load href="__ROOT__/public/echarts.min.js" /}
+<!-- <table id="tt" class="easyui-datagrid" 
+      url='{:url('activity/event/aa')}'
+      toolbar="#tb"
+      rownumbers="true" pagination="true" fit="true" fitColumns="true" pageSize='10'  style="width:1300px;height:800px"> -->
+<div class="easyui-panel" fit="true" border="false">
+    <table id="tt" class="easyui-datagrid" toolbar="#event-grid-toolbar" style="display:none"
+           data-options="border:false,
+           url:'{:url('activity/event/aa')}',
+           fit:true,
+           rownumbers:true,
+           sortOder:'ASC',
+           sortName:'caption',
+           idField:'id',
+           fitColumns:true,
+           striped:true,
+           pagination:true,
+           pageSize:'10',
+           singleSelect:true,
+
+          ">
+
+    <thead>
+      <tr>
+        <th field="fnumber" width="180">物料编码</th>
+          <th field="fname" width="180">物料名称</th>
+          <th field="fmodel" width="180">物料规格</th>
+          <th field="funitid" width="50">单位</th> 
+          <th field="ffullname" width="380">物料分类</th>
+          <th field="fcreatedate" width="180">创建时间</th>
+      </tr>
+    </thead>
+  </table>
+ <!-- <div id="container" fit="true" style="width: 600px; height: 600px;"></div> -->
+    <div id="event-grid-toolbar">
+       
+    
+    <span>物料编码:</span>
+    <input id="FNumber" style="line-height:26px;border:1px solid #ccc">
+      <span>物料名称:</span>
+    <input id="FName" style="line-height:26px;border:1px solid #ccc">
+    <span>物料规格:</span>
+    <input id="FModel" style="line-height:26px;border:1px solid #ccc">
+        <span>创建开始时间:</span>
+    <input id="FCreateDateStime"  style="line-height:26px;border:1px solid #ccc" type="text" class="easyui-datebox">
+    <span>创建结束时间:</span>
+    <input id="FCreateDateEtime"  style="line-height:26px;border:1px solid #ccc" type="text" class="easyui-datebox">
+    <a href="#" class="easyui-linkbutton" data-options="iconCls:'icon-search'" onclick="doSearch()">查找</a>
+    </div>
+</div>
+    <script type="text/javascript">
+
+    
+    function doSearch() 
+  {   
+     var names = [], ages = [];   
+     if  ( $('#FCreateDateEtime').val()==''){
+         var user = {
+           FNumber: $('#FNumber').val(),
+       FName: $('#FName').val(),
+         FModel: $('#FModel').val(),
+         FCreateDateStime: $('#FCreateDateStime').val(),
+       FCreateDateEtime: '2029-12-11'
+               };
+           $('#tt').datagrid('load',{
+        
+                           FNumber: $('#FNumber').val(),
+                           FName: $('#FName').val(),
+                           FModel: $('#FModel').val(),
+                           FCreateDateStime: $('#FCreateDateStime').val(),
+                           FCreateDateEtime: '2029-12-11'
+
+                             }
+                      );  //tt
+
+            getusers();
+            buildecharts()
+     } else{
+           var user = {
+           FNumber: $('#FNumber').val(),
+       FName: $('#FName').val(),
+         FModel: $('#FModel').val(),
+         FCreateDateStime: $('#FCreateDateStime').val(),
+       FCreateDateEtime: $('#FCreateDateEtime').val()
+               };
+           $('#tt').datagrid('load',{
+        
+                 FNumber: $('#FNumber').val(),
+                           FName: $('#FName').val(),
+                          FModel: $('#FModel').val(),
+                           FCreateDateStime: $('#FCreateDateStime').val(),
+                          FCreateDateEtime: $('#FCreateDateEtime').val()
+                                    }
+                      );  //tt
+            
+            getusers();
+            buildecharts()
+              }
+ 
+
+   
+
+
+    // 执行异步请求
+
+
+
+
+
+
+
+
+ 
+
+
+
+//以下为执行请求
+  function getusers() {
+        $.ajax({
+            type: "post",
+            async: false,
+            url: "__ROOT__/index.php/activity/event/a",
+            data: user,
+            dataType: "json",
+            success: function(result){
+                if(result){
+                    for(var i = 0 ; i < result.length; i++){
+                        names.push(result[i].fname);
+                        ages.push(result[i].count);
+                    }
+                }
+            },
+            error: function(errmsg) {
+                alert("Ajax获取服务器数据出错了！"+ errmsg);
+            }
+        });
+    return names, ages;
+    }
+ //初始化ECHARTS       
+function buildecharts(){
+var mychart = echarts.init(document.getElementById("container"));
+        // 进行相关项的设置，也就是所谓的搭搭骨架，方便待会的ajax异步的数据填充
+        var option = {
+            title : {
+                text : '物料分类图'
+            },
+            tooltip : {
+                show : true
+            },
+            legend : {
+                data : [ 'age' ]
+            },
+            xAxis : [ {
+                data : names
+            } ],
+            yAxis : [ {
+                type : 'value'
+            } ],
+            series : [ {
+                "name" : "age",
+                "type" : "bar",
+                "data" : ages
+            } ]
+        };
+
+        // 将配置项赋给chart对象，来显示相关的数据
+        mychart.setOption(option);
+
+                    } //buildecharts
+
+
+
+
+
+ } //doSearch() end
+
+
+    
+
+
+</script>

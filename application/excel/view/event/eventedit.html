@@ -1,0 +1,103 @@
+<div class="easyui-layout" fit="true">
+    <div data-options="region:'north'" border="false" style="height:160px">
+        <form id="event-editor-form" method="post"
+              action="/activity/event/uploadimg" enctype="multipart/form-data">
+            <table width="100%" height="160px" border="0px">
+                <tr>
+                    <td style="text-align: center; width:60px">活动名称:</td>
+                    <td style="width:350px">
+                        <input type="text" name="caption" class="easyui-validatebox"
+                               data-options="required:true" style="width:230px;height:22px">
+                    </td>
+
+                    <!--添加图片-->
+                    <td rowspan="2" style="width:50px;text-align: center"> 图片:</td>
+                    <td rowspan="3" style="vertical-align: top">
+                        <div id="flagImgUpload" newflag="1" class="uploadview" name="event">
+                            <input type="file" id="event-file-input" name="event">
+                            <div id="imgDiv" class="container">
+
+                            </div>
+                            <div id="toolbar" class="toolbar none">删除</div>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td style="text-align: center; width:60px">开始时间:</td>
+                    <td><input type="text" name="starttime" class="easyui-datetimebox"
+                               required="true" style="width:230px"></td>
+                </tr>
+                <tr>
+                    <td style="text-align: center">结束时间:</td>
+                    <td><input type="text" name="endtime" class="easyui-datetimebox"
+                               data-options="required:true"
+                               style="width:230px"></td>
+                </tr>
+            </table>
+        </form>
+    </div>
+    <!--富文本框-->
+    <div data-options="region:'center',title:'活动详情'">
+        <textarea name="note" id="eventckeditor"></textarea>
+    </div>
+
+</div>
+<script>
+    $(function () {
+        //初始化ckediter
+        CKEDITOR.replace('eventckeditor', {
+            customConfig: 'myconfig.js'
+        });
+
+        //编辑时加载弹窗内容
+        jack.cms.event.event.loadData();
+        //编辑时加载ckeditor内容
+        if (jack.cms.event.line) {
+            $('#eventckeditor').text(jack.cms.event.line.note);
+        }
+
+        //添加图片
+        var flag = $('#flagImgUpload').attr('newflag');
+        if (flag == '1') {
+            $('#event-file-input').uploadPreview({
+                width: '250px',
+                height: '150px',
+                imgDiv: '#imgDiv',
+                maxSize: 1024 * 2,
+                callback: function (img) {
+                    $('#toolbar').removeClass('none');
+                    $('#flagImgUpload').attr('newflag', '0');
+                }
+            });
+        } else {
+
+        }
+
+        //删除图片
+        $('#toolbar').click(function () {
+            var flag = $('#flagImgUpload').attr('newflag');
+            if (flag == '0') {
+                $('#imgDiv img').remove();
+                $(this).addClass('none');
+                $('#flagImgUpload').attr('newflag', '1');
+            }
+        });
+
+        //添加图片
+        if (jack.cms.event.line) {
+            if (flag == '1') {
+                //编辑时加载图片
+                $('#toolbar').removeClass('none');
+                $('#flagImgUpload').attr('newflag', '0');
+                var img = $('<img>').attr('src', jack.cms.event.line.imgsrc)
+                        .attr('width', '250px')
+                        .attr('height', '150px');
+                img.appendTo($('#imgDiv'));
+            }
+        }
+
+
+    });
+
+
+</script>
